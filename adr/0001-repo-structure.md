@@ -11,7 +11,7 @@
 
 레포를 네 개로 나눈다.
 
-| 레포 | 주인 | 바뀌는 빈도 |
+| 레포 | 담당 | 바뀌는 빈도 |
 | --- | --- | --- |
 | SERVICE-maemusae | fullstack | 매일. upstream(SNACKCUP)을 계속 따라간다 |
 | OPS-maemusae | infra (보안 보고 경로는 security) | 자주 |
@@ -38,4 +38,4 @@ nerd-nam의 `image-pr.yml` 방식을 따른다.
 ## 결과
 
 - 변경 하나가 PR 두 개로 나뉠 때가 있다. 예: SERVICE에 `/metrics`를 추가하면 INFRA에 ServiceMonitor도 추가한다.
-- 레포 사이의 계약은 `contracts/`에 두고, 바꿀 때는 양쪽 주인이 함께 리뷰한다.
+- 레포 사이의 계약은 `contracts/`에 두고, 바꿀 때는 양쪽 담당 팀이 함께 리뷰한다.

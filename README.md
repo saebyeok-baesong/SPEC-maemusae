@@ -2,7 +2,7 @@
 
 새벽배송 팀의 공용 문서 레포입니다. 코드는 아래 세 레포에서 개발하고, 이 레포에는 세 팀(풀스택, 인프라, 보안)이 함께 보는 기준 자료를 둡니다.
 
-| 레포 | 주인 | 내용 |
+| 레포 | 담당 | 내용 |
 | --- | --- | --- |
 | [SERVICE-maemusae](https://github.com/saebyeok-baesong/SERVICE-maemusae) | 풀스택 | 매무새 앱 (SNACKCUP/maemusae 포크, Next.js + FastAPI) |
 | [OPS-maemusae](https://github.com/saebyeok-baesong/OPS-maemusae) | 인프라 (보안 공동) | AI 장애 대응 자동화 (webhook, LangGraph 워커, 승인) |
