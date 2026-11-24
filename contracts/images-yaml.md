@@ -4,9 +4,9 @@ INFRA 레포에서 각 앱이 지금 어떤 이미지로 떠 있어야 하는지
 
 | 쓰는 쪽 | 하는 일 |
 | --- | --- |
-| SERVICE, OPS의 CI | 새 이미지를 ECR에 올린 뒤 자기 앱 줄을 새 digest로 바꾸는 PR을 엽니다 |
+| SERVICE, OPS의 CI(이미지 PR App) | 새 이미지를 ECR에 올린 뒤 자기 앱 줄을 새 digest로 바꾸는 PR을 엽니다. 사람이 리뷰하고 merge합니다 |
 | Argo CD | `main`의 이 파일대로 sync합니다 |
-| OPS 장애 대응 봇 | 이력을 읽고, 롤백 때 한 앱 줄을 직전 digest로 되돌리는 PR을 열고, 승인되면 merge합니다 |
+| OPS 장애 대응 봇(롤백 App) | 이력을 읽고, 롤백 때 한 앱 줄을 직전 digest로 되돌리는 PR을 열고, Discord에서 승인되면 리뷰 없이 merge합니다 |
 
 담당은 인프라팀입니다. 형식을 바꿀 때는 OPS 담당(인프라팀)과 CI를 고치는 담당(풀스택팀)이 함께 리뷰합니다.
 
@@ -16,8 +16,11 @@ INFRA 레포에서 각 앱이 지금 어떤 이미지로 떠 있어야 하는지
 
 ```yaml
 # 앱 이름: 저장소@sha256:digest. 각 앱 레포 CI가 PR로 자기 줄을 고친다
+
 web: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/web@sha256:3f1c...(64자)
+
 api: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/api@sha256:9ab2...(64자)
+
 ops: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/ops@sha256:77de...(64자)
 ```
 
@@ -26,12 +29,21 @@ ops: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/ops@sha256:77de...(64자)
 - 키는 소문자, 숫자, `-`만 씁니다(`^[a-z0-9][a-z0-9-]*$`). 키는 Deployment의 컨테이너 이름, 알림의 `app` 라벨과 같습니다.
 - 값은 `<저장소>@sha256:<64자 16진수>`입니다. `:latest` 같은 태그는 쓰지 않습니다. digest여야 롤백이 정확히 같은 이미지로 돌아갑니다.
 - 한 앱은 한 줄입니다. 값을 여러 줄로 나누거나 앵커(`&`, `*`)를 쓰지 않습니다. 봇은 그 줄 하나만 바꾸고 나머지 줄과 주석은 그대로 둡니다.
+- 앱 줄 사이에 빈 줄을 둡니다. 두 앱의 PR이 동시에 열려도 바뀐 줄이 서로 붙어 있지 않아 git이 충돌 없이 합칩니다. 봇과 CI는 빈 줄을 지우지 않습니다.
 - 주석은 자유롭게 씁니다.
 - 한 커밋에서 여러 앱 줄을 바꿔도 되지만, 앱 하나만 바꾸면 이력으로 배포 시각을 더 정확히 알 수 있습니다.
 
 ## 배포 이력을 읽는 방법
 
 봇은 `main`에서 이 파일을 바꾼 커밋을 최신부터 읽습니다. 지금 값이 처음 들어온 커밋의 커밋 시각을 그 앱의 배포 시각으로, 그 바로 전 커밋의 값을 직전 이미지로 봅니다. PR merge 시각과 Argo CD sync 시각의 차이(보통 수 분)는 무시합니다.
+
+## 롤백 PR과 merge
+
+Discord 장애 카드의 승인이 사람 리뷰입니다. 승인 역할(처음에는 풀스택, 인프라, 보안팀 역할 셋, 나중에 줄임) 중 하나를 가진 사람이 누르면 봇이 GitHub 리뷰 없이 PR을 merge합니다. 그래서 다음을 지킵니다.
+
+- 롤백 App은 이미지 PR App과 다른 GitHub App입니다. INFRA `main` ruleset의 우회 목록에는 롤백 App 하나만, `main`에만 넣습니다. 우회 범위를 넓히려면 보안팀 리뷰를 받습니다.
+- 롤백 App은 INFRA-maemusae 하나에만("Only select repositories") 설치하고, 권한은 Contents(Read and write), Pull requests(Read and write), Metadata(Read)만 줍니다. Workflows, Administration, Actions, Secrets 같은 다른 권한은 없고 webhook은 끕니다. private key는 Secrets Manager `maemusae/` 경로에만 두고 승인 봇 ServiceAccount만 읽습니다.
+- App 권한은 파일 단위로 좁힐 수 없으므로 봇이 merge 직전에 확인합니다. PR의 base가 `main`이고, 바뀐 파일이 이 파일 하나이고, 바뀐 줄이 롤백 대상 앱 한 줄(제안 때 이미지 -> 직전 이미지)뿐이어야 합니다. 하나라도 어긋나면 merge하지 않고 카드에 거부 사유를 남깁니다.
 
 ## 롤백 커밋
 

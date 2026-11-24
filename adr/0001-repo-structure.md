@@ -31,11 +31,35 @@
 nerd-nam의 `image-pr.yml` 방식을 따른다.
 
 1. SERVICE, OPS의 CI가 OIDC로 ECR에 이미지를 올린다. 정적 AWS 키는 두지 않는다.
-2. CI가 INFRA의 이미지 정의 파일에서 자기 줄을 digest로 고치는 PR을 연다. INFRA 쓰기 권한은 이 용도의 GitHub App 하나에만 준다.
+2. CI가 INFRA의 이미지 정의 파일에서 자기 줄을 digest로 고치는 PR을 연다. 이때 쓰는 GitHub App(이미지 PR App)은 INFRA 쓰기 권한만 갖고 리뷰 규칙을 우회하지 않는다.
 3. 사람이 PR을 merge하면 Argo CD가 sync한다.
-4. 장애 대응 봇의 롤백도 같은 길로 간다. 봇이 이전 digest로 되돌리는 PR을 열고, Discord 승인이 곧 그 PR의 merge다. kubectl로 직접 되돌리지 않는다. Argo CD self-heal이 직접 바꾼 상태를 다시 되돌리기 때문이다.
+4. 장애 대응 봇의 롤백도 같은 길로 간다. 봇이 이전 digest로 되돌리는 PR을 열고, Discord 승인이 곧 그 PR의 merge다. kubectl로 직접 되돌리지 않는다. Argo CD self-heal이 직접 바꾼 상태를 다시 되돌리기 때문이다. 롤백 PR은 이미지 PR App과 다른 GitHub App(롤백 App)이 열고 merge한다. Discord 승인이 사람 리뷰이므로 롤백 App은 INFRA `main` ruleset의 우회 목록에 들어가 리뷰 없이 merge한다.
 
 ## 결과
 
 - 변경 하나가 PR 두 개로 나뉠 때가 있다. 예: SERVICE에 `/metrics`를 추가하면 INFRA에 ServiceMonitor도 추가한다.
 - 레포 사이의 계약은 `contracts/`에 두고, 바꿀 때는 양쪽 담당 팀이 함께 리뷰한다.
+
+## 변경 기록
+
+### 2026-11-25 GitHub App을 둘로 나눈다
+
+처음에는 INFRA 쓰기 권한을 GitHub App 하나에만 주기로 했다. 이를 둘로 나눈다.
+
+| App | 키를 갖는 곳 | 하는 일 | INFRA `main` 리뷰 규칙 |
+| --- | --- | --- | --- |
+| 이미지 PR App | SERVICE, OPS의 GitHub Actions | 새 digest로 `images.yaml`의 자기 줄을 바꾸는 PR을 연다 | 따른다. 사람이 리뷰하고 merge한다 |
+| 롤백 App | 클러스터 안 OPS(승인 봇) | 롤백 PR을 열고 Discord 승인 뒤 merge한다 | 우회한다. Discord 승인이 사람 리뷰다 |
+
+이유:
+
+- 키를 갖는 곳이 다르다. 하나는 CI에, 하나는 클러스터에 있다. 한쪽 키가 새도 다른 쪽 권한은 드러나지 않는다.
+- 리뷰 규칙을 우회하는 권한은 롤백 App에만 있어야 한다. App이 하나면 CI에 있는 키로도 리뷰 없이 `main`에 merge할 수 있게 된다.
+
+롤백 App은 사람 확인 없이 merge할 수 있으므로 범위를 좁힌다.
+
+- 설치 범위는 "Only select repositories"로 INFRA-maemusae 하나다.
+- 권한은 Contents(Read and write), Pull requests(Read and write), Metadata(Read)만 준다. Workflows, Administration, Actions, Secrets를 비롯한 다른 권한은 주지 않는다. Webhook은 끈다.
+- private key는 Secrets Manager `maemusae/` 경로에만 두고, 클러스터에서는 승인 봇 ServiceAccount만 읽는다.
+- ruleset 우회는 이 App 하나에만, INFRA `main`에만 준다. 우회 범위를 넓히려면 보안팀 리뷰를 받는다.
+- GitHub App 권한은 파일 단위로 좁힐 수 없다. 그래서 OPS 코드가 merge 직전에 PR이 `gitops/apps/images.yaml`의 그 앱 한 줄만 바꾸는지, base가 `main`인지 확인하고, 아니면 merge하지 않는다.
