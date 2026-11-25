@@ -1,0 +1,66 @@
+{
+  "version": "4",
+  "groupKey": "{}/{severity=\"critical\"}:{alertname=\"MaemusaeUnhandledException\", namespace=\"maemusae\"}",
+  "truncatedAlerts": 0,
+  "status": "firing",
+  "receiver": "ops-maemusae",
+  "groupLabels": {"alertname": "MaemusaeUnhandledException", "namespace": "maemusae"},
+  "commonLabels": {"alertname": "MaemusaeUnhandledException", "namespace": "maemusae", "severity": "critical"},
+  "commonAnnotations": {},
+  "externalURL": "http://alertmanager.monitoring:9093",
+  "alerts": [
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "MaemusaeUnhandledException",
+        "namespace": "maemusae",
+        "app": "api",
+        "container": "api",
+        "severity": "critical"
+      },
+      "annotations": {
+        "summary": "api에서 처리하지 못한 예외가 5분 동안 3건 났습니다",
+        "description": "Loki: {namespace=\"maemusae\", container=\"api\"} | json | logger=\"app.error\""
+      },
+      "startsAt": "2026-11-24T05:12:30.000Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://loki.monitoring:3100/rules",
+      "fingerprint": "a1b2c3d4e5f60718"
+    },
+    {
+      "status": "firing",
+      "labels": {
+        "alertname": "KubePodCrashLooping",
+        "namespace": "maemusae",
+        "pod": "web-7c9f8d6b5d-x2kqp",
+        "container": "web",
+        "job": "kube-state-metrics",
+        "service": "kube-prometheus-stack-kube-state-metrics",
+        "severity": "warning"
+      },
+      "annotations": {
+        "summary": "Pod is crash looping.",
+        "description": "Pod maemusae/web-7c9f8d6b5d-x2kqp (web) is in waiting state (reason: \"CrashLoopBackOff\")."
+      },
+      "startsAt": "2026-11-24T05:13:00.000Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://prometheus.monitoring:9090/graph",
+      "fingerprint": "0f1e2d3c4b5a6978"
+    },
+    {
+      "status": "resolved",
+      "labels": {
+        "alertname": "KubePodOOMKilled",
+        "namespace": "maemusae",
+        "pod": "api-6b8d9c7f4-qz5lm",
+        "container": "api",
+        "severity": "warning"
+      },
+      "annotations": {"summary": "api 컨테이너가 메모리 한도를 넘어 종료됐습니다"},
+      "startsAt": "2026-11-24T04:40:00.000Z",
+      "endsAt": "2026-11-24T05:00:00.000Z",
+      "generatorURL": "http://prometheus.monitoring:9090/graph",
+      "fingerprint": "99aa88bb77cc66dd"
+    }
+  ]
+}
