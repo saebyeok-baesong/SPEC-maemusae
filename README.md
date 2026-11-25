@@ -20,3 +20,7 @@
 ## 결정 기록
 
 - [0001 레포 구조와 팀별 소유](adr/0001-repo-structure.md)
+
+## 계약
+
+- [Alertmanager 경보 → OPS 장애 대응 봇](contracts/alertmanager-webhook.md)
