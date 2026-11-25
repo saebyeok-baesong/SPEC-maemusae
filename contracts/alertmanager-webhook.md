@@ -28,7 +28,7 @@ Alertmanager webhook payload `version: "4"`를 그대로 받습니다. 예시는
 
 ## 서비스 지표
 
-SERVICE 백엔드가 `/metrics`로 낼 Prometheus 지표입니다 ([SERVICE #4](https://github.com/saebyeok-baesong/SERVICE-maemusae/issues/4)에서 요청). 경보 규칙은 이 이름에 기댑니다:
+SERVICE 백엔드가 `/metrics`로 낼 Prometheus 지표입니다 ([SERVICE #4](https://github.com/saebyeok-baesong/SERVICE-watch-nyang/issues/4)에서 요청). 경보 규칙은 이 이름에 기댑니다:
 
 | 지표 | 라벨 |
 | --- | --- |

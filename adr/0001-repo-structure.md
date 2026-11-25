@@ -5,7 +5,7 @@
 
 ## 배경
 
-매무새(SNACKCUP/maemusae 포크)를 EKS에 올리고 AI 기반 장애 대응 자동화를 붙인다. 풀스택, 인프라, 보안 세 팀이 함께 작업한다. 배포는 Argo CD(GitOps)로 하고, 장애 대응 봇은 사람 승인 뒤에 롤백한다.
+WatchNyang(SNACKCUP/maemusae 포크)를 EKS에 올리고 AI 기반 장애 대응 자동화를 붙인다. 풀스택, 인프라, 보안 세 팀이 함께 작업한다. 배포는 Argo CD(GitOps)로 하고, 장애 대응 봇은 사람 승인 뒤에 롤백한다.
 
 ## 결정
 
@@ -13,10 +13,10 @@
 
 | 레포 | 담당 | 바뀌는 빈도 |
 | --- | --- | --- |
-| SERVICE-maemusae | fullstack | 매일. upstream(SNACKCUP)을 계속 따라간다 |
-| OPS-maemusae | infra (보안 보고 경로는 security) | 자주 |
-| INFRA-maemusae | infra (`gitops/security/`, `iam/`은 security) | 드물게, 리뷰를 엄격하게 |
-| SPEC-maemusae | 세 팀 공동 | 결정이 있을 때 |
+| SERVICE-watch-nyang | fullstack | 매일. upstream(SNACKCUP)을 계속 따라간다 |
+| OPS-watch-nyang | infra (보안 보고 경로는 security) | 자주 |
+| INFRA-watch-nyang | infra (`gitops/security/`, `iam/`은 security) | 드물게, 리뷰를 엄격하게 |
+| SPEC-watch-nyang | 세 팀 공동 | 결정이 있을 때 |
 
 보안팀은 레포를 따로 갖지 않는다. 보안팀이 만드는 것(정책, kube-bench Job, NetworkPolicy, IAM)은 클러스터에 배포되는 설정이라, 레포를 나누면 Argo CD가 보는 GitOps 원천이 둘이 된다. 대신 CODEOWNERS로 경로를 소유해 그 경로의 변경은 보안팀 승인 없이 merge되지 않게 한다.
 
@@ -56,7 +56,7 @@ INFRA에 쓰는 GitHub App은 둘이다.
 
 롤백 App은 사람 확인 없이 merge할 수 있으므로 범위를 최소로 둔다.
 
-- 설치 범위는 "Only select repositories"로 INFRA-maemusae 하나다.
+- 설치 범위는 "Only select repositories"로 INFRA-watch-nyang 하나다.
 - 권한은 Contents(Read and write), Pull requests(Read and write), Metadata(Read)만 준다. Workflows, Administration, Actions, Secrets를 비롯한 다른 권한은 주지 않는다. Webhook은 끈다.
 - ruleset 우회는 이 App 하나에만, INFRA `main`에만 준다. 우회 범위를 넓히려면 보안팀 리뷰를 받는다.
 - GitHub App 권한은 파일 단위로 좁힐 수 없다. 그래서 OPS 코드가 merge 직전에 PR이 `gitops/apps/images.yaml`의 그 앱 한 줄만 바꾸는지, base가 `main`인지 확인하고, 아니면 merge하지 않는다.

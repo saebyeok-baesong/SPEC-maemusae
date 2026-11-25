@@ -26,7 +26,7 @@ GitHub Actions의 보안 스캔(Trivy, gitleaks) 결과를 OPS로 넘기는 방�
 
 | 자리 | 값 |
 | --- | --- |
-| `repo` | `SERVICE-maemusae`, `OPS-maemusae`, `INFRA-maemusae` 중 하나 |
+| `repo` | `SERVICE-watch-nyang`, `OPS-watch-nyang`, `INFRA-watch-nyang` 중 하나 |
 | `tool` | `trivy`, `gitleaks` 중 하나 |
 | `YYYY-MM-DD` | 스캔한 날(UTC) |
 | `github_run_id` | `$GITHUB_RUN_ID` |
