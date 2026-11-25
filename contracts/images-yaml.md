@@ -39,11 +39,11 @@ ops: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/ops@sha256:77de...(64자)
 
 ## 롤백 PR과 merge
 
-Discord 장애 카드의 승인이 사람 리뷰입니다. 승인 역할(처음에는 풀스택, 인프라, 보안팀 역할 셋, 나중에 줄임) 중 하나를 가진 사람이 누르면 봇이 GitHub 리뷰 없이 PR을 merge합니다. 그래서 다음을 지킵니다.
+Discord 장애 알림의 승인이 사람 리뷰입니다. 승인 역할(처음에는 풀스택, 인프라, 보안팀 역할 셋, 나중에 줄임) 중 하나를 가진 사람이 누르면 봇이 GitHub 리뷰 없이 PR을 merge합니다. 그래서 다음을 지킵니다.
 
 - 롤백 App은 이미지 PR App과 다른 GitHub App입니다. INFRA `main` ruleset의 우회 목록에는 롤백 App 하나만, `main`에만 넣습니다. 우회 범위를 넓히려면 보안팀 리뷰를 받습니다.
 - 롤백 App은 INFRA-maemusae 하나에만("Only select repositories") 설치하고, 권한은 Contents(Read and write), Pull requests(Read and write), Metadata(Read)만 줍니다. Workflows, Administration, Actions, Secrets 같은 다른 권한은 없고 webhook은 끕니다. private key는 Secrets Manager `maemusae/` 경로에만 두고 승인 봇 ServiceAccount만 읽습니다.
-- App 권한은 파일 단위로 좁힐 수 없으므로 봇이 merge 직전에 확인합니다. PR의 base가 `main`이고, 바뀐 파일이 이 파일 하나이고, 바뀐 줄이 롤백 대상 앱 한 줄(제안 때 이미지 -> 직전 이미지)뿐이어야 합니다. 하나라도 어긋나면 merge하지 않고 카드에 거부 사유를 남깁니다.
+- App 권한은 파일 단위로 좁힐 수 없으므로 봇이 merge 직전에 확인합니다. PR의 base가 `main`이고, 바뀐 파일이 이 파일 하나이고, 바뀐 줄이 롤백 대상 앱 한 줄(제안 때 이미지 -> 직전 이미지)뿐이어야 합니다. 하나라도 어긋나면 merge하지 않고 장애 알림에 거부 사유를 남깁니다.
 
 ## 롤백 커밋
 
